@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediBridge NG - Telemedicine & Medicine Delivery</title>
+    <style>
+        /* ============================================
+           BASIC STYLES - DON'T CHANGE UNLESS NEEDED
+           ============================================ */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; line-height: 1.6; background: #f0f9f0; scroll-behavior: smooth; }
+        
+        /* ============================================
+           NAVIGATION - CHANGE COLORS/LOGO HERE
+           ============================================ */
+        .navbar { background: #2c8c4a; color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; width: 100%; z-index: 1000; }
+        .logo { font-size: 1.5rem; font-weight: bold; display: flex; align-items: center; gap: 10px; }
+        .nav-links { display: flex; gap: 1.5rem; }
+        .nav-links a { color: white; text-decoration: none; padding: 5px 10px; border-radius: 5px; transition: background 0.3s; }
+        .nav-links a:hover { background: rgba(255,255,255,0.2); }
+        .login-btn { background: white; color: #2c8c4a; border: none; padding: 0.5rem 1rem; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        
+        /* ============================================
+           HERO SECTION - CHANGE TITLE/TEXT HERE
+           ============================================ */
+        .hero { padding: 8rem 1rem 3rem; text-align: center; background: linear-gradient(135deg, #2c8c4a, #4caf50); color: white; }
+        .hero h1 { font-size: 2rem; margin-bottom: 1rem; }
+        .hero-buttons { margin-top: 2rem; }
+        .btn { padding: 0.8rem 1.5rem; margin: 0.5rem; border: none; border-radius: 5px; font-size: 1rem; cursor: pointer; transition: transform 0.3s; }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-primary { background: white; color: #2c8c4a; font-weight: bold; }
+        
+        /* ============================================
+           SERVICES SECTION - CHANGE CARDS HERE
+           ============================================ */
+        .services { padding: 3rem 1rem; max-width: 1200px; margin: 0 auto; }
+        .services h2 { color: #2c8c4a; text-align: center; margin-bottom: 2rem; }
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-top: 2rem; }
+        .service-card { background: white; padding: 1.5rem; border-radius: 10px; text-align: center; box-shadow: 0 3px 10px rgba(0,0,0,0.1); border: 2px solid #e0e0e0; cursor: pointer; }
+        .service-card:hover { border-color: #2c8c4a; }
+        
+        /* ============================================
+           SYMPTOM CHECKER - CHANGE SYMPTOMS HERE
+           ============================================ */
+        .symptom-checker { padding: 3rem 1rem; background: white; margin: 2rem; border-radius: 10px; }
+        .symptom-checker h2 { color: #2c8c4a; margin-bottom: 0.5rem; }
+        .symptoms-container { display: flex; flex-wrap: wrap; gap: 10px; margin: 1rem 0; }
+        .symptom-btn { padding: 0.5rem 1rem; background: #f0f0f0; border: 2px solid #ddd; border-radius: 20px; cursor: pointer; transition: all 0.3s; }
+        .symptom-btn:hover { background: #e0e0e0; }
+        .symptom-btn.selected { background: #2c8c4a; color: white; border-color: #2c8c4a; }
+        .result-box { background: #f8f9fa; padding: 1rem; border-radius: 10px; min-height: 100px; margin: 1rem 0; border: 2px solid #e0e0e0; }
+        
+        /* ============================================
+           TRACKING SECTION - CHANGE TRACKING SETTINGS
+           ============================================ */
+        .tracking { padding: 3rem 1rem; max-width: 800px; margin: 0 auto; }
+        .tracking h2 { color: #2c8c4a; text-align: center; margin-bottom: 1rem; }
+        .tracking-input { display: flex; gap: 10px; margin-bottom: 2rem; }
+        .tracking-input input { flex: 1; padding: 0.8rem; border: 2px solid #ddd; border-radius: 8px; }
+        .tracking-input input:focus { outline: none; border-color: #2c8c4a; }
+        
+        /* ============================================
+           HEALTH WORKERS - ADD/REMOVE WORKERS HERE
+           ============================================ */
+        .health-workers { padding: 3rem 1rem; max-width: 1200px; margin: 0 auto; }
+        .health-workers h2 { color: #2c8c4a; text-align: center; margin-bottom: 2rem; }
+        .workers-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
+        .worker-card { background: white; padding: 1.5rem; border-radius: 10px; text-align: center; box-shadow: 0 3px 10px rgba(0,0,0,0.1); border: 2px solid #e0e0e0; }
+        .worker-card:hover { border-color: #2c8c4a; }
+        
+        /* ============================================
+           REGISTRATION FORM - CHANGE FIELDS HERE
+           ============================================ */
+        .register-form { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
+        .form-container { background: white; padding: 2rem; border-radius: 10px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        
+        /* ============================================
+           FOOTER - CHANGE CONTACT INFO HERE
+           ============================================ */
+        footer { background: #2c8c4a; color: white; padding: 2rem 1rem; text-align: center; margin-top: 3rem; }
+        
+        /* ============================================
+           MODALS - CHANGE LOOK HERE
+           ============================================ */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 2000; }
+        .modal { background: white; padding: 2rem; border-radius: 10px; width: 90%; max-width: 400px; }
+        
+        /* ============================================
+           RESPONSIVE DESIGN - MOBILE SETTINGS
+           ============================================ */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero h1 { font-size: 1.5rem; }
+            .hero { padding: 6rem 1rem 2rem; }
+            .checker-container { grid-template-columns: 1fr; }
+        }
+        
+        /* ============================================
+           TRACKING VISUALIZATION
+           ============================================ */
+        .tracking-visual { margin: 2rem 0; padding: 1.5rem; background: #f8f9fa; border-radius: 10px; }
+        .progress-steps { display: flex; justify-content: space-between; position: relative; }
+        .step { text-align: center; z-index: 2; }
+        .step-circle { width: 40px; height: 40px; background: #ddd; color: #666; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-weight: bold; }
+        .step.active .step-circle { background: #2c8c4a; color: white; }
+        .step-line { position: absolute; top: 20px; left: 10%; right: 10%; height: 3px; background: #ddd; z-index: 1; }
+    </style>
+</head>
+<body>
+    <!-- ============================================
+         NAVIGATION BAR - CHANGE LOGO/MENU HERE
+         ============================================ -->
+    <nav class="navbar">
+        <div class="logo">
+            <span style="font-size: 1.8rem;">🏥</span>
+            <span>MediBridge NG</span>
+        </div>
+        <div class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#services">Services</a>
+            <a href="#symptom-checker">Symptom Checker</a>
+            <a href="#tracking">Track Delivery</a>
+            <a href="#health-workers">Health Workers</a>
+        </div>
+        <button class="login-btn" onclick="showLogin()">Login</button>
+    </nav>
+
+    <!-- ============================================
+         HERO SECTION - CHANGE MAIN BUTTONS HERE
+         ============================================ -->
+    <section class="hero" id="home">
+        <h1>Telemedicine + Last-Mile Medicine Delivery</h1>
+        <p>Verified health workers • Okada/Keke networks • Real-time tracking • Offline-first</p>
+        <div class="hero-buttons">
+            <button class="btn btn-primary" onclick="window.open('https://doxy.me/nursengozi', '_blank')">
+                📞 Start Video Consultation
+            </button>
+            <button class="btn" style="background: rgba(255,255,255,0.2); color: white;" 
+                    onclick="window.open('https://forms.gle/YC1uvgtWto368n2c6', '_blank')">
+                💊 Order Medicine
+            </button>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SERVICES - CHANGE SERVICE CARDS HERE
+         ============================================ -->
+    <section class="services" id="services">
+        <h2>Our Services</h2>
+        <div class="services-grid">
+            <!-- TELEMEDICINE CARD - CLICK TO OPEN DOXY.ME -->
+            <div class="service-card" onclick="window.open('https://doxy.me/nursengozi', '_blank')">
+                <div style="font-size: 2.5rem; color: #2c8c4a;">📹</div>
+                <h3>Telemedicine</h3>
+                <p>Video consultations with doctors</p>
+                <p style="color: #2c8c4a; font-size: 0.9rem; margin-top: 10px;">Click to start consultation →</p>
+            </div>
+            
+            <div class="service-card" onclick="window.open('https://forms.gle/YC1uvgtWto368n2c6', '_blank')">
+                <div style="font-size: 2.5rem; color: #2c8c4a;">🏍️</div>
+                <h3>Last-Mile Delivery</h3>
+                <p>Medicine via okada/keke networks</p>
+                <p style="color: #2c8c4a; font-size: 0.9rem; margin-top: 10px;">Click to order medicine →</p>
+            </div>
+            
+            <div class="service-card" onclick="document.getElementById('tracking').scrollIntoView({behavior: 'smooth'});">
+                <div style="font-size: 2.5rem; color: #2c8c4a;">📍</div>
+                <h3>Real-Time Tracking</h3>
+                <p>Live GPS tracking of deliveries</p>
+                <p style="color: #2c8c4a; font-size: 0.9rem; margin-top: 10px;">Click to track delivery →</p>
+            </div>
+            
+            <div class="service-card" onclick="document.getElementById('health-workers').scrollIntoView({behavior: 'smooth'});">
+                <div style="font-size: 2.5rem; color: #2c8c4a;">👨‍⚕️</div>
+                <h3>Community Health Workers</h3>
+                <p>Verified workers for rural areas</p>
+                <p style="color: #2c8c4a; font-size: 0.9rem; margin-top: 10px;">Click to view workers →</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SYMPTOM CHECKER - CHANGE SYMPTOMS/CONDITIONS
+         ============================================ -->
+    <section class="symptom-checker" id="symptom-checker">
+        <h2>🔄 Offline-First Symptom Checker</h2>
+        <p>Works without internet in rural areas</p>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+            <div>
+                <h3>Select Symptoms:</h3>
+                <div class="symptoms-container" id="symptomsContainer">
+                    <!-- Symptoms loaded by JavaScript -->
+                </div>
+                <button class="btn btn-primary" onclick="checkSymptoms()" style="margin-top: 1rem;">
+                    🔍 Analyze Symptoms
+                </button>
+            </div>
+            
+            <div>
+                <h3>Result:</h3>
+                <div class="result-box" id="result">
+                    Select symptoms and click "Analyze"
+                </div>
+                <div id="status" style="padding: 0.5rem; background: #e8f5e9; border-radius: 5px; display: inline-flex; align-items: center; gap: 8px;">
+                    <span>📶</span>
+                    <span id="status-text">Online</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         DELIVERY TRACKING - CHANGE TRACKING SYSTEM
+         ============================================ -->
+    <section class="tracking" id="tracking">
+        <h2>📍 Track Your Medicine Delivery</h2>
+        
+        <div style="max-width: 600px; margin: 0 auto; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.1);">
+            <!-- STEP 1: GENERATE TRACKING NUMBER -->
+            <div style="margin-bottom: 2rem;">
+                <h3 style="color: #2c8c4a;">1. Generate Tracking Number</h3>
+                <p>Don't have a tracking number yet?</p>
+                <button class="btn btn-primary" onclick="generateTrackingNumber()" style="margin-top: 10px;">
+                    🆕 Generate New Tracking Number
+                </button>
+                <div id="new-tracking" style="margin-top: 10px; padding: 10px; background: #e8f5e9; border-radius: 5px; display: none;">
+                    <p><strong>Your Tracking Number:</strong> <span id="tracking-code"></span></p>
+                    <p style="font-size: 0.9rem;">Save this number to track your delivery!</p>
+                </div>
+            </div>
+            
+            <!-- STEP 2: TRACK DELIVERY -->
+            <div>
+                <h3 style="color: #2c8c4a;">2. Track Your Delivery</h3>
+                <div class="tracking-input">
+                    <input type="text" id="trackingNumber" placeholder="Enter tracking number: e.g., MB-12345">
+                    <button class="btn btn-primary" onclick="trackDelivery()">Track Delivery</button>
+                </div>
+                
+                <!-- TRACKING VISUALIZATION -->
+                <div class="tracking-visual" id="trackingVisual" style="display: none;">
+                    <h4>Delivery Progress</h4>
+                    <div class="progress-steps">
+                        <div class="step active" id="step1">
+                            <div class="step-circle">🏥</div>
+                            <span>Pharmacy</span>
+                        </div>
+                        <div class="step" id="step2">
+                            <div class="step-circle">🏍️</div>
+                            <span>On the Way</span>
+                        </div>
+                        <div class="step" id="step3">
+                            <div class="step-circle">🏠</div>
+                            <span>Delivered</span>
+                        </div>
+                        <div class="step-line"></div>
+                    </div>
+                    
+                    <!-- DRIVER INFO -->
+                    <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin-top: 1.5rem;">
+                        <h4>🚚 Driver Information</h4>
+                        <p><strong>Name:</strong> <span id="driver-name">Adeola (Okada Rider)</span></p>
+                        <p><strong>Vehicle:</strong> <span id="driver-vehicle">Honda CG 125</span></p>
+                        <p><strong>ETA:</strong> <span id="driver-eta">25 minutes</span></p>
+                        <p><strong>Status:</strong> <span id="driver-status" style="color: #2c8c4a;">● Picked up from pharmacy</span></p>
+                        <p><strong>Live Location:</strong> <button onclick="simulateLiveTracking()" style="background: #2c8c4a; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-top: 5px;">📍 View Live Map</button></p>
+                    </div>
+                    
+                    <!-- TRACKING HISTORY -->
+                    <div style="margin-top: 1rem; font-size: 0.9rem;">
+                        <h5>Tracking History:</h5>
+                        <div id="tracking-history">
+                            <!-- Will be filled by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         HEALTH WORKERS - ADD/EDIT WORKERS HERE
+         ============================================ -->
+    <section class="health-workers" id="health-workers">
+        <h2>✅ Verified Community Health Workers</h2>
+        <div class="workers-grid">
+            <!-- WORKER 1: NGOZI RUFAI -->
+            <div class="worker-card">
+                <div style="width: 80px; height: 80px; background: #2c8c4a; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: bold; margin: 0 auto 1rem auto;">NR</div>
+                <h3>Ngozi Rufai</h3>
+                <p>📍 Sabon Lugbe, Abuja</p>
+                <p>👩‍⚕️ Nurse/Midwife</p>
+                <p>⏰ 16 years experience</p>
+                <p>📞 0803 123 4567</p>
+                <button class="btn" style="background: #2c8c4a; color: white; margin-top: 1rem; width: 100%;" onclick="bookConsultation('Ngozi Rufai')">Book Consultation</button>
+            </div>
+            
+            <!-- WORKER 2: AMINA LAWAL -->
+            <div class="worker-card">
+                <div style="width: 80px; height: 80px; background: #2c8c4a; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: bold; margin: 0 auto 1rem auto;">AL</div>
+                <h3>Amina Lawal</h3>
+                <p>📍 Rural Kano</p>
+                <p>👩‍⚕️ Maternal Health Specialist</p>
+                <p>⏰ 5 years experience</p>
+                <button class="btn" style="background: #2c8c4a; color: white; margin-top: 1rem; width: 100%;" onclick="bookConsultation('Amina Lawal')">Book Consultation</button>
+            </div>
+            
+            <!-- WORKER 3: CHUKWUDI OKORO -->
+            <div class="worker-card">
+                <div style="width: 80px; height: 80px; background: #2c8c4a; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: bold; margin: 0 auto 1rem auto;">CO</div>
+                <h3>Chukwudi Okoro</h3>
+                <p>📍 Enugu Rural</p>
+                <p>👨‍⚕️ Malaria Prevention</p>
+                <p>⏰ 3 years experience</p>
+                <button class="btn" style="background: #2c8c4a; color: white; margin-top: 1rem; width: 100%;" onclick="bookConsultation('Chukwudi Okoro')">Book Consultation</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         FOOTER - CHANGE CONTACT DETAILS HERE
+         ============================================ -->
+    <footer>
+        <h3>MediBridge NG</h3>
+        <p>Bridging healthcare gaps in rural Nigeria</p>
+        <p>📞 07032515943 | ✉️ rufysanctuary@gmail.com</p>
+        <p>📍 Abuja, Nigeria</p>
+        <p style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.8;">© 2025 MediBridge NG. All rights reserved.</p>
+    </footer>
+
+    <!-- ============================================
+         LOGIN MODAL - CHANGE LOGIN SETTINGS
+         ============================================ -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal">
+            <h2 style="color: #2c8c4a; text-align: center;">🔐 Login to MediBridge</h2>
+            <input type="email" id="loginEmail" placeholder="Email address" style="width: 100%; padding: 10px; margin: 10px 0; border: 2px solid #ddd; border-radius: 5px;">
+            <input type="password" id="loginPassword" placeholder="Password" style="width: 100%; padding: 10px; margin: 10px 0; border: 2px solid #ddd; border-radius: 5px;">
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-primary" onclick="doLogin()" style="width: 100%;">Login</button>
+                <button class="btn" onclick="showRegisterForm()" style="background: #f0f0f0; color: #333;">📝 Register New Account</button>
+                <button class="btn" onclick="hideLogin()" style="background: transparent; color: #666; border: 1px solid #ddd;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         REGISTRATION FORM - CHANGE FIELDS HERE
+         ============================================ -->
+    <div class="register-form" id="registerForm">
+        <div class="form-container">
+            <h2 style="color: #2c8c4a; text-align: center; margin-bottom: 1rem;">📝 Create New Account</h2>
+            
+            <div style="display: grid; gap: 15px;">
+                <input type="text" id="regFullName" placeholder="Full Name" style="padding: 12px; border: 2px solid #ddd; border-radius: 5px;">
+                <input type="email" id="regEmail" placeholder="Email Address" style="padding: 12px; border: 2px solid #ddd; border-radius: 5px;">
+                <input type="tel" id="regPhone" placeholder="Phone Number (e.g., 07032515943)" style="padding: 12px; border: 2px solid #ddd; border-radius: 5px;">
+                <input type="password" id="regPassword" placeholder="Password" style="padding: 12px; border: 2px solid #ddd; border-radius: 5px;">
+                <input type="password" id="regConfirmPassword" placeholder="Confirm Password" style="padding: 12px; border: 2px solid #ddd; border-radius: 5px;">
+                
+                <select id="regUserType" style="padding: 12px; border: 2px solid #ddd; border-radius: 5px;">
+                    <option value="">Select Account Type</option>
+                    <option value="patient">Patient</option>
+                    <option value="health_worker">Health Worker</option>
+                    <option value="pharmacy">Pharmacy Partner</option>
+                    <option value="rider">Delivery Rider</option>
+                </select>
+                
+                <textarea id="regAddress" placeholder="Full Address for Delivery" rows="3" style="padding: 12px; border: 2px solid #ddd; border-radius: 5px; resize: vertical;"></textarea>
+                
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button class="btn btn-primary" onclick="registerUser()" style="flex: 1;">Create Account</button>
+                    <button class="btn" onclick="hideRegisterForm()" style="background: #f0f0f0; color: #333;">Cancel</button>
+                </div>
+                
+                <p style="font-size: 0.9rem; text-align: center; margin-top: 10px;">
+                    By registering, you agree to our <a href="#" onclick="alert('Terms of Service will be displayed here')" style="color: #2c8c4a;">Terms of Service</a> and <a href="#" onclick="alert('Privacy Policy will be displayed here')" style="color: #2c8c4a;">Privacy Policy</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         JAVASCRIPT - EDIT SETTINGS HERE
+         ============================================ -->
+    <script>
+        // ============================================
+        // CONFIGURATION SETTINGS - CHANGE THESE VALUES
+        // ============================================
+        const CONFIG = {
+            // Contact Information
+            companyPhone: "07032515943",
+            companyEmail: "rufysanctuary@gmail.com",
+            companyLocation: "Abuja, Nigeria",
+            
+            // Doxy.me Video Consultation Link
+            videoConsultationLink: "https://doxy.me/nursengozi",
+            
+            // Google Form for Medicine Orders
+            medicineOrderForm: "https://forms.gle/YC1uvgtWto368n2c6",
+            
+            // Symptoms Database (Add/Remove symptoms here)
+            symptoms: [
+                "Fever", "Cough", "Headache", "Fatigue", "Body Pain",
+                "Nausea", "Diarrhea", "Chest Pain", "Shortness of Breath", "Sore Throat"
+            ],
+            
+            // Medical Conditions (Add/Remove conditions here)
+            conditions: [
+                {
+                    name: "Common Cold",
+                    symptoms: ["Fever", "Cough", "Headache", "Sore Throat"],
+                    advice: "Rest, drink fluids, over-the-counter cold medicine"
+                },
+                {
+                    name: "Flu (Influenza)",
+                    symptoms: ["Fever", "Cough", "Headache", "Fatigue", "Body Pain"],
+                    advice: "Rest, fluids, antiviral medication if diagnosed early"
+                },
+                {
+                    name: "Malaria (Suspected)",
+                    symptoms: ["Fever", "Headache", "Fatigue", "Body Pain", "Nausea"],
+                    advice: "URGENT: Visit nearest health center for blood test"
+                }
+            ],
+            
+            // Health Workers (Add/Remove workers here)
+            healthWorkers: [
+                {
+                    name: "Ngozi Rufai",
+                    location: "Sabon Lugbe, Abuja",
+                    specialty: "Nurse/Midwife",
+                    experience: "16 years",
+                    phone: "0803 123 4567",
+                    initials: "NR"
+                },
+                {
+                    name: "Amina Lawal",
+                    location: "Rural Kano",
+                    specialty: "Maternal Health Specialist",
+                    experience: "5 years",
+                    phone: "0803 234 5678",
+                    initials: "AL"
+                },
+                {
+                    name: "Chukwudi Okoro",
+                    location: "Enugu Rural",
+                    specialty: "Malaria Prevention",
+                    experience: "3 years",
+                    phone: "0803 345 6789",
+                    initials: "CO"
+                }
+            ],
+            
+            // Delivery Settings
+            deliveryDrivers: [
+                { name: "Adeola", vehicle: "Honda CG 125", type: "Okada" },
+                { name: "Musa", vehicle: "Keke NAPEP", type: "Keke" },
+                { name: "Emeka", vehicle: "TVS Star", type: "Okada" }
+            ],
+            
+            // Tracking Settings
+            trackingPrefix: "MB-"
+        };
+
+        // ============================================
+        // APPLICATION VARIABLES - DON'T CHANGE
+        // ============================================
+        let selectedSymptoms = [];
+        let currentTrackingNumber = "";
+        let trackingHistory = {};
+
+        // ============================================
+        // INITIALIZE APP - RUNS ON PAGE LOAD
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSymptoms();
+            updateStatus();
+            setupSmoothScrolling();
+            
+            // Check online status every 5 seconds
+            setInterval(updateStatus, 5000);
+        });
+
+        // ============================================
+        // LOAD SYMPTOMS INTO CHECKER
+        // ============================================
+        function loadSymptoms() {
+            const container = document.getElementById('symptomsContainer');
+            container.innerHTML = '';
+            
+            CONFIG.symptoms.forEach(symptom => {
+                const btn = document.createElement('button');
+                btn.className = 'symptom-btn';
+                btn.textContent = symptom;
+                btn.onclick = () => {
+                    btn.classList.toggle('selected');
+                    const index = selectedSymptoms.indexOf(symptom);
+                    if (index === -1) {
+                        selectedSymptoms.push(symptom);
+                    } else {
+                        selectedSymptoms.splice(index, 1);
+                    }
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        // ============================================
+        // CHECK SYMPTOMS FUNCTION
+        // ============================================
+        function checkSymptoms() {
+            const resultDiv = document.getElementById('result');
+            
+            if (selectedSymptoms.length === 0) {
+                resultDiv.innerHTML = '<p>⚠️ Please select at least one symptom</p>';
+                return;
+            }
+            
+            let html = `<p><strong>Selected symptoms:</strong> ${selectedSymptoms.join(', ')}</p>`;
+            
+            // Find matches
+            const matches = CONFIG.conditions.filter(cond => 
+                selectedSymptoms.some(s => cond.symptoms.includes(s))
+            );
+            
+            if (matches.length > 0) {
+                html += '<h4>Possible Conditions:</h4>';
+                matches.forEach(cond => {
+                    const matchCount = selectedSymptoms.filter(s => 
+                        cond.symptoms.includes(s)
+                    ).length;
+                    const percent = Math.round((matchCount / cond.symptoms.length) * 100);
+                    
+                    html += `
+                        <div style="background: white; padding: 1rem; margin: 0.5rem 0; border-radius: 5px; border-left: 4px solid #2c8c4a;">
+                            <h5>${cond.name} (${percent}% match)</h5>
+                            <p><strong>Advice:</strong> ${cond.advice}</p>
+                        </div>
+                    `;
+                });
+                
+                html += `<p><em>Note: This is not a medical diagnosis. Consult a health professional.</em></p>`;
+            } else {
+                html += '<p>🤔 No specific condition identified. Please consult a health worker.</p>';
+            }
+            
+            html += `
+                <div style="margin-top: 1rem; display: flex; gap: 10px;">
+                    <button onclick="window.open('${CONFIG.videoConsultationLink}', '_blank')" style="background: #2c8c4a; color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer;">
+                        📞 Video Consult
+                    </button>
+                    <button onclick="window.open('${CONFIG.medicineOrderForm}', '_blank')" style="background: #f0f0f0; border: 1px solid #ddd; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer;">
+                        💊 Order Medicine
+                    </button>
+                </div>
+            `;
+            
+            resultDiv.innerHTML = html;
+        }
+
+        // ============================================
+        // TRACKING SYSTEM FUNCTIONS
+        // ============================================
+        function generateTrackingNumber() {
+            // Generate random tracking number
+            const randomNum = Math.floor(10000 + Math.random() * 90000);
+            currentTrackingNumber = CONFIG.trackingPrefix + randomNum;
+            
+            // Create tracking entry
+            trackingHistory[currentTrackingNumber] = {
+                created: new Date().toLocaleString(),
+                status: "pending",
+                steps: ["Order placed", "Pharmacy processing"],
+                driver: CONFIG.deliveryDrivers[Math.floor(Math.random() * CONFIG.deliveryDrivers.length)],
+                eta: "45 minutes"
+            };
+            
+            // Show tracking number to user
+            document.getElementById('tracking-code').textContent = currentTrackingNumber;
+            document.getElementById('new-tracking').style.display = 'block';
+            
+            // Auto-fill tracking input
+            document.getElementById('trackingNumber').value = currentTrackingNumber;
+            
+            alert(`Your tracking number: ${currentTrackingNumber}\n\nSave this number to track your delivery!\n\nNext: Click "Track Delivery" to see progress.`);
+        }
+
+        function trackDelivery() {
+            const trackingNum = document.getElementById('trackingNumber').value.trim();
+            
+            if (!trackingNum) {
+                alert('Please enter a tracking number');
+                return;
+            }
+            
+            // Check if tracking number exists
+            if (!trackingHistory[trackingNum]) {
+                // Simulate creating a new tracking if doesn't exist
+                trackingHistory[trackingNum] = {
+                    created: new Date().toLocaleString(),
+                    status: "in_transit",
+                    steps: [
+                        "Order placed - " + new Date().toLocaleTimeString(),
+                        "Pharmacy processing - " + new Date().toLocaleTimeString(),
+                        "Medicine prepared - " + new Date().toLocaleTimeString(),
+                        "Rider dispatched - " + new Date().toLocaleTimeString()
+                    ],
+                    driver: CONFIG.deliveryDrivers[Math.floor(Math.random() * CONFIG.deliveryDrivers.length)],
+                    eta: Math.floor(15 + Math.random() * 30) + " minutes"
+                };
+            }
+            
+            const tracking = trackingHistory[trackingNum];
+            
+            // Show tracking visualization
+            document.getElementById('trackingVisual').style.display = 'block';
+            
+            // Update progress steps
+            const steps = document.querySelectorAll('.step');
+            steps.forEach(step => step.classList.remove('active'));
+            
+            if (tracking.status === "pending") {
+                document.getElementById('step1').classList.add('active');
+            } else if (tracking.status === "in_transit") {
+                document.getElementById('step1').classList.add('active');
+                document.getElementById('step2').classList.add('active');
+            } else if (tracking.status === "delivered") {
+                steps.forEach(step => step.classList.add('active'));
+            }
+            
+            // Update driver info
+            document.getElementById('driver-name').textContent = tracking.driver.name + " (" + tracking.driver.type + ")";
+            document.getElementById('driver-vehicle').textContent = tracking.driver.vehicle;
+            document.getElementById('driver-eta').textContent = tracking.eta;
+            document.getElementById('driver-status').textContent = tracking.status === "in_transit" ? "● On the way to your location" : "● Picked up from pharmacy";
+            
+            // Update tracking history
+            const historyDiv = document.getElementById('tracking-history');
+            historyDiv.innerHTML = tracking.steps.map(step => 
+                `<div style="padding: 5px 0; border-bottom: 1px solid #eee;">✓ ${step}</div>`
+            ).join('');
+            
+            // Scroll to tracking visualization
+            document.getElementById('trackingVisual').scrollIntoView({behavior: 'smooth'});
+        }
+
+        function simulateLiveTracking() {
+            alert("Live Tracking Simulation\n\nIn a real app, this would show:\n\n1. Real-time GPS location of rider\n2. Route map from pharmacy to your address\n3. Estimated arrival time\n4. Traffic conditions\n\nFor now, this is a simulation. Real tracking requires:\n• Rider's smartphone with GPS\n• Google Maps API integration\n• Real-time database");
+        }
+
+        // ============================================
+        // BOOK CONSULTATION FUNCTION
+        // ============================================
+        function bookConsultation(name) {
+            const worker = CONFIG.healthWorkers.find(w => w.name === name);
+            if (worker) {
+                alert(`Booking consultation with ${name}\n\n📞 Phone: ${worker.phone}\n📍 Location: ${worker.location}\n👨‍⚕️ Specialty: ${worker.specialty}\n⏰ Experience: ${worker.experience}\n\nYou will receive a call within 10 minutes to schedule your appointment.`);
+            } else {
+                alert(`Booking consultation with ${name}...\n\nYou will receive a call within 10 minutes to schedule your appointment.`);
+            }
+        }
+
+        // ============================================
+        // REGISTRATION SYSTEM
+        // ============================================
+        function showRegisterForm() {
+            hideLogin();
+            document.getElementById('registerForm').style.display = 'flex';
+        }
+
+        function hideRegisterForm() {
+            document.getElementById('registerForm').style.display = 'none';
+        }
+
+        function registerUser() {
+            const fullName = document.getElementById('regFullName').value;
+            const email = document.getElementById('regEmail').value;
+            const phone = document.getElementById('regPhone').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            const userType = document.getElementById('regUserType').value;
+            const address = document.getElementById('regAddress').value;
+            
+            // Basic validation
+            if (!fullName || !email || !phone || !password || !userType) {
+                alert("Please fill in all required fields");
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                alert("Passwords do not match");
+                return;
+            }
+            
+            // Simulate registration (in real app, this would send to server)
+            alert(`✅ Registration Successful!\n\nWelcome to MediBridge NG, ${fullName}!\n\nAccount Type: ${userType}\nEmail: ${email}\nPhone: ${phone}\n\nYou can now login with your credentials.`);
+            
+            // Reset form
+            document.getElementById('regFullName').value = "";
+            document.getElementById('regEmail').value = "";
+            document.getElementById('regPhone').value = "";
+            document.getElementById('regPassword').value = "";
+            document.getElementById('regConfirmPassword').value = "";
+            document.getElementById('regUserType').value = "";
+            document.getElementById('regAddress').value = "";
+            
+            hideRegisterForm();
+            showLogin();
+        }
+
+        // ============================================
+        // LOGIN SYSTEM
+        // ============================================
+        function showLogin() {
+            document.getElementById('loginModal').style.display = 'flex';
+        }
+
+        function hideLogin() {
+            document.getElementById('loginModal').style.display = 'none';
+        }
+
+        function doLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (email && password) {
+                alert('✅ Login successful!\n\nWelcome to your MediBridge dashboard.\n\nYou can now:\n• View your consultations\n• Track your deliveries\n• Order medicine\n• Update your profile');
+                hideLogin();
+                
+                // Change login button to profile
+                document.querySelector('.login-btn').textContent = '👤 Profile';
+                document.querySelector('.login-btn').onclick = function() {
+                    alert(`User Profile\n\nName: Registered User\nEmail: ${email}\n\nDashboard Features:\n• View past consultations\n• Track active deliveries\n• Order history\n• Payment methods\n• Edit profile`);
+                };
+            } else {
+                alert('Please enter email and password');
+            }
+        }
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        function updateStatus() {
+            const statusDiv = document.getElementById('status-text');
+            const isOnline = navigator.onLine;
+            
+            if (isOnline) {
+                statusDiv.textContent = 'Online';
+                document.getElementById('status').style.background = '#e8f5e9';
+                document.getElementById('status').querySelector('span').textContent = '📶';
+            } else {
+                statusDiv.textContent = 'Offline (Local Mode)';
+                document.getElementById('status').style.background = '#fff3cd';
+                document.getElementById('status').querySelector('span').textContent = '📴';
+            }
+        }
+
+        function setupSmoothScrolling() {
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 70,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        }
+
+        // Close modals when clicking outside
+        document.getElementById('loginModal').onclick = function(e) {
+            if (e.target === this) hideLogin();
+        };
+        
+        document.getElementById('registerForm').onclick = function(e) {
+            if (e.target === this) hideRegisterForm();
+        };
+
+        // Handle offline/online events
+        window.addEventListener('online', updateStatus);
+        window.addEventListener('offline', updateStatus);
+    </script>
+</body>
+</html>
